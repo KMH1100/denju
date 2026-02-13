@@ -1,6 +1,7 @@
 import { requireAuth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { ProtectedPdfViewer } from '@/components/materials/ProtectedPdfViewer'
 
 export default async function MaterialViewPage({
@@ -67,12 +68,12 @@ export default async function MaterialViewPage({
               {material.course.department.university.name} - {material.course.department.name}
             </p>
           </div>
-          <a
+          <Link
             href="/materials"
             className="px-4 py-2 bg-black text-white font-bold border-2 border-white hover:bg-white hover:text-black transition-colors"
           >
             戻る
-          </a>
+          </Link>
         </div>
       </div>
 
