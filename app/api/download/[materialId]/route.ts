@@ -5,11 +5,11 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 
 export async function GET(
   request: Request,
-  { params }: { params: { materialId: string } }
+  { params }: { params: Promise<{ materialId: string }> }
 ) {
   try {
     const user = await requireAuth()
-    const { materialId } = params
+    const { materialId } = await params
 
     // 購入確認
     const purchase = await prisma.purchase.findUnique({

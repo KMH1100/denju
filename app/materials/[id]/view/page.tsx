@@ -6,19 +6,21 @@ import { ProtectedPdfViewer } from '@/components/materials/ProtectedPdfViewer'
 export default async function MaterialViewPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const user = await requireAuth().catch(() => null)
 
   if (!user) {
     redirect('/auth/login')
   }
+  
+  const { id } = await params
 
   // Web閲覧権限確認
   const purchase = await prisma.purchase.findFirst({
     where: {
       userId: user.id,
-      materialId: params.id,
+      materialId: id,
       OR: [
         { purchaseType: 'WEB' },
         { purchaseType: 'PDF' },
@@ -27,11 +29,11 @@ export default async function MaterialViewPage({
   })
 
   if (!purchase) {
-    redirect(`/materials/${params.id}`)
+    redirect(`/materials/${id}`)
   }
 
   const material = await prisma.material.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       course: {
         include: {

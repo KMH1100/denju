@@ -9,12 +9,13 @@ import Link from 'next/link'
 export default async function MaterialDetailPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const user = await requireAuth().catch(() => null)
+  const { id } = await params
 
   const material = await prisma.material.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       seller: {
         select: {
@@ -55,7 +56,7 @@ export default async function MaterialDetailPage({
     const purchases = await prisma.purchase.findMany({
       where: {
         userId: user.id,
-        materialId: params.id,
+        materialId: id,
       },
     })
 
