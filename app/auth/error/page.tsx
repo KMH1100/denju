@@ -1,11 +1,15 @@
-import { Suspense } from 'react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import Link from 'next/link'
 
-function ErrorContent({ searchParams }: { searchParams: { message?: string; university?: string } }) {
-  const message = searchParams.message
-  const university = searchParams.university
+export default async function ErrorPage({ 
+  searchParams 
+}: { 
+  searchParams: Promise<{ message?: string; university?: string }> 
+}) {
+  const params = await searchParams
+  const message = params.message
+  const university = params.university
 
   const errorMessages: Record<string, string> = {
     domain_mismatch: `選択した大学（${decodeURIComponent(university || '')}）のドメインと一致するメールアドレスでログインしてください`,
@@ -27,13 +31,5 @@ function ErrorContent({ searchParams }: { searchParams: { message?: string; univ
         </Link>
       </Card>
     </div>
-  )
-}
-
-export default function ErrorPage({ searchParams }: { searchParams: { message?: string; university?: string } }) {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <ErrorContent searchParams={searchParams} />
-    </Suspense>
   )
 }
