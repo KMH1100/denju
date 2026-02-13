@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
+import { PDFDocument, rgb, StandardFonts, degrees } from 'pdf-lib'
 
 export async function GET(
   request: Request,
@@ -73,7 +73,7 @@ export async function GET(
           font: font,
           color: rgb(0, 0, 0),
           opacity: opacity,
-          rotate: { angle: 45, type: 'degrees' },
+          rotate: degrees(45),
         })
       }
     }
