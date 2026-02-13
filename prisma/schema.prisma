@@ -1,0 +1,175 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum MaterialStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PurchaseType {
+  WEB
+  PDF
+}
+
+enum PayoutStatus {
+  PENDING
+  COMPLETED
+  REJECTED
+}
+
+enum PayoutDestination {
+  AMAZON
+  PAYPAY
+}
+
+model University {
+  id            String       @id @default(cuid())
+  name          String       @unique
+  slug          String       @unique
+  allowedDomain String       // 例: *.ac.jp, *.u-tokyo.ac.jp
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  
+  departments   Department[]
+  users         User[]
+}
+
+model Department {
+  id           String     @id @default(cuid())
+  name         String
+  slug         String
+  universityId String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  
+  university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  courses      Course[]
+  users        User[]     // 学部に所属するユーザー
+  
+  @@unique([universityId, slug])
+}
+
+model Course {
+  id           String     @id @default(cuid())
+  name         String
+  departmentId String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  materials    Material[]
+  
+  @@unique([departmentId, name])
+}
+
+model User {
+  id               String    @id @default(cuid())
+  email            String    @unique
+  username         String?
+  universityId     String?
+  departmentId     String?   // 学部学科
+  enrollmentYear   Int?      // 入学年（例: 2024）
+  verifiedGpa      Float?    // 管理者が承認したGPA
+  isGpaVerified    Boolean   @default(false)
+  balance          Int       @default(0) // 残高（円単位）
+  role             UserRole  @default(USER)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  
+  university       University? @relation(fields: [universityId], references: [id])
+  department       Department? @relation(fields: [departmentId], references: [id])
+  verifications    IdentityVerification[]
+  materials        Material[]
+  purchases        Purchase[]
+  payoutRequests   PayoutRequest[]
+}
+
+model IdentityVerification {
+  id              String              @id @default(cuid())
+  userId          String
+  gpaProofImageUrl String             // 成績証明書の画像URL
+  status          VerificationStatus  @default(PENDING)
+  adminNote       String?             // 管理者メモ
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([status])
+}
+
+model Material {
+  id          String         @id @default(cuid())
+  title       String
+  overview    String         @db.Text
+  priceWeb    Int            // Web閲覧価格（円）
+  pricePdf    Int            // PDFダウンロード価格（円）
+  pdfUrl      String?        // UploadThingのPrivate URL
+  thumbnailUrl String?       // サムネイル画像
+  status      MaterialStatus @default(PENDING)
+  sellerId    String
+  courseId    String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  
+  seller      User           @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  course      Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  purchases   Purchase[]
+  
+  @@index([status])
+  @@index([courseId])
+}
+
+model Purchase {
+  id               String       @id @default(cuid())
+  userId           String
+  materialId       String
+  purchaseType     PurchaseType
+  amount           Int          // 購入時の金額
+  stripeSessionId  String?      @unique
+  createdAt        DateTime     @default(now())
+  
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  material         Material     @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, materialId, purchaseType])
+  @@index([userId])
+  @@index([materialId])
+}
+
+model PayoutRequest {
+  id                String             @id @default(cuid())
+  userId            String
+  amount            Int                // 申請金額
+  status            PayoutStatus       @default(PENDING)
+  payoutDestination PayoutDestination
+  accountInfo       String             // アカウント情報（メールアドレス等）
+  adminNote         String?            // 管理者メモ（ギフトコード等）
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([status])
+}

@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-pink-50 text-charcoal-800;
+    letter-spacing: 0.02em;
+  }
+}
+
+@layer utilities {
+  /* Organic Blob Shapes */
+  .blob-shape {
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    filter: blur(60px);
+    opacity: 0.4;
+  }
+  
+  .blob-shape-2 {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    filter: blur(60px);
+    opacity: 0.3;
+  }
+  
+  /* Soft Shadow */
+  .soft-shadow {
+    box-shadow: 0 2px 8px rgba(255, 182, 193, 0.15);
+  }
+  
+  .soft-shadow-lg {
+    box-shadow: 0 4px 16px rgba(255, 182, 193, 0.2);
+  }
+  
+  /* No Select */
+  .no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  
+  /* Letter Spacing */
+  .tracking-organic {
+    letter-spacing: 0.05em;
+  }
+}
