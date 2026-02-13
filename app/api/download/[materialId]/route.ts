@@ -81,7 +81,7 @@ export async function GET(
     // 透かし入りPDFを生成
     const modifiedPdfBytes = await pdfDoc.save()
 
-    return new NextResponse(modifiedPdfBytes, {
+    return new NextResponse(Buffer.from(modifiedPdfBytes), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${encodeURIComponent(material.title)}.pdf"`,
