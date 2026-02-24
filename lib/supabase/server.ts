@@ -12,20 +12,22 @@ export async function createClient() {
         get(name: string) {
           return cookieStore.get(name)?.value
         },
+      // ... 省略
         set(name: string, value: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value, ...options })
-          } catch (error) {
+          } catch (_error) { // errorを_errorに変更
             // Server Component内でのset/removeは無視
           }
         },
         remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
+          } catch (_error) { // errorを_errorに変更
             // Server Component内でのset/removeは無視
           }
         },
+// ... 省略
       },
     }
   )
